@@ -1,0 +1,9 @@
+CMakeCache.txt
+CMakeFiles/*
+Makefile
+cmake_install.cmake
+.idea
+
+PTSSH.cbp
+examples/*/CMakeFiles/
+libWrapper/CMakeFiles/*

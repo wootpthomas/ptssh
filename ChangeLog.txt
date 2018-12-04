@@ -1,0 +1,32 @@
+Changelog for 0.3.0 alpha
+----------------------------
+-Updated the C API to prepend all function calls with "ptssh_". This more closely follows most C style libs and should also help keep function naming collisions low. Thanks to Joe M. for pointing this out.
+-Fixed a problem where the SocketSend thread would make CPU usage spike every now and then even if there wasn't anything waiting to be sent.
+-Fixed a potential threading problem in the SftpRequestMgr class. This could potentially let one thread add or remove a Sftp request while another was looking up a Sftp request and then end up looking at the wrong request because of the first thead adding/removing a sftp request in the list at just the right moment.
+-Fixed the restriction on having a maximum number of Sftp requests. You can now make as many sftp requests simultaneously as your system can handle.
+-Fixed an issue with shutting down PTssh where the SocketSend and/or SocketRecieve threads would not shutdown properly and could cause a deadlock. The thread shutdown logic was re-written, the original stuff was crappy.
+-Fixed an issue with SocketSend and SocketRecieve threads not properly detecting and handling socket disconnection or dropped connections.
+-Fixed several build problems due to some missing #defines
+-Removed the usage of the Select() function call. PTssh now does not need the select function.
+-Added disconnect callback support. PTssh can now let the end-developer register a function callback that gets called if the socket goes down or gets dropped. The developer can also store a pointer such that it will be available when the callback occurs, PTssh holds it as a void* in its CallbackData struct.
+-Use of the PTSSH_ENABLE_LOGGING macro is now fully supported: Added the PTLOG macro. Using PTLOG instead of ptLog will let us compile in or out all logging messages. This will help PTssh have a much smaller footprint on embedded systems, or allow developers to completely disable PTssh's debugging messages. If you comment out the PTSSH_ENABLE_LOGGING #define, all of PTssh's debugging messages will not be compiled into the build. Saves about 10K
+-Fixed some build issues under VS2k8 with zlib enabled on the Sftp_usingClass and MultipleConnectionManager projects
+
+Changelog for 0.2.0 alpha
+-----------------------------
+-Dropped the "pre-" alpha. I'd consider PTssh to be of at least alpha quality if not much better.
+-Restructured the PTssh project files. Theres now seperate "src" and "include" directories. I noticed that many other open-source libraries package their stuff around this format and I think it makes much more sense. I've updated all Visual Studio stuff to match this change.
+-Update CMakeLists. There were some problems that I ran into with some folders not correctly picking up the PTsshW as a dependency.
+-Various CMakeLists updates. Probably shows off my newb-ness when it comes to CMake ;p
+
+Changelog for 0.1.0 pre-alpha
+-----------------------------
+New Features: SFTP support!
+-Added SFTP support for version 3
+-Added the multiple connection manager in order to demonstrate multiple threads utilizing one PTssh object.
+-Fixed an issue that would sometimes crop up when sending a SSH_DISCONNECT message that the Socket Send/Receive threads would not correctly exit. Please note that theres still a few items that I need to work on so that when errors occurs threads shut down properly. If you find your client in what appears to be a deadlocked state, you've hit one of these areas that I'll soon be looking into ;p
+-Removed the need for any developers to mess with initializing the Winsock library when building on Windows. All socket stuff is now taken care of internally. The examples have all been updated to reflect this.
+-Added two SFTP examples: One shows how to use the C++ class method and the other shows how to use the shared library method ( .DLL or .SO)
+-The SFTP manager has a hard-coded limit of a maximum of 10 outstanding requests at a time. This will be dynamic in the next release so you can have an infinite number. Its on my TODO list!
+-The value of PTSSH has changed! I've moved it to be defined to 0. This makes PTssh conform to the general return value of 0 for success that most other C libs use. IT also allows me to still use the negative numbers for errors and also be able to pass back the actual SFTP error values (these are all positive 1+)
+-Fixed the PTsshConfig.h section that allows you to optimize PTssh for 1000/100/10Mbps connections. You can now enable what you want to match how you expect your code to be used in order to have best performance and memory utilization.
